@@ -1,0 +1,25 @@
+# 景気づけにls
+ls
+
+# ホームに移動
+# 複数行のコメントはまとめて表示されます
+cd
+cd work/devlove
+
+# SQL*Plusもシームレスにいけます
+sqlplus system
+
+# *****と書いておくとパスワード入力ダイアログがでます
+*****
+
+# SQLを実行します
+select * from tab;
+
+# SQLを終了
+exit
+
+# 実行可能ファイルなのに実行権がないファイルのチェックもらくらく！
+find . -type f | LC_ALL=C xargs file | grep executable | perl -ne 'chomp; s/^(.*?)[:\t].*/$1/; $p=(stat $_)[2] & 64; print "$_\n" unless $p'
+
+
+
