@@ -1,12 +1,5 @@
 ;;; migration script executor
 show 0
-getdate datestr
-strcopy datestr 1 4 buf
-strconcat ymdhms buf
-strcopy datestr 6 2 buf
-strconcat ymdhms buf
-strcopy datestr 9 2 buf
-strconcat ymdhms buf
 
 ;;; select script file
 filenamebox 'migration script' 0
@@ -19,14 +12,21 @@ cmdpath=inputstr
 setdlgpos 800 50
 statusbox '移行を開始します' 'README'
 fileopen fh cmdpath 0
-;;; exec 'Z:\usr\bin\mplayer migrate_start.wav'
+;exec 'Z:\usr\bin\mplayer migrate_start.wav'
 pause 3
 closesbox
+
+;;
+gettime timestr "%Y%m%d-%H%M%S"
+sprintf2 logfile 'migration_%s.log' timestr
+logopen logfile 0 1
+logwrite 'Start Migration'#13#10
 
 ;; fetch command
 :loop
 filereadln fh cmd
 if result goto success
+
 ;; skip empty line
 strcompare cmd ''
 if result=0 goto loop
@@ -56,7 +56,7 @@ messagebox disp_ikou_comment 'Next command'
 disp_ikou_comment = ''
 send cmd
 
-;;; exec 'Z:\usr\bin\mplayer verify.wav'
+;exec 'Z:\usr\bin\mplayer verify.wav'
 yesnobox '実行しちゃいますよ' '指さし確認'
 if result then
   sendln ''
@@ -69,9 +69,12 @@ goto loop
 ;;;
 :abend
 fileclose fh
+logwrite 'Abort Migration'
+logclose
 messagebox '中止しました' 'Warning'
 closesbox
 end
+
 ;;;
 ;;; success
 ;;;
@@ -79,8 +82,10 @@ end
 fileclose fh
 ;; 時間情報取得
 sendln 'date "+%Y/%m/%d %H:%M:%S"'
+logwrite 'Abort Migration'
+logclose
 messagebox '移行作業完了しました' 'README'
-;;; exec 'Z:\usr\bin\mplayer migrate_end.wav'
+;exec 'Z:\usr\bin\mplayer migrate_end.wav'
 pause 3
 closesbox
 end
