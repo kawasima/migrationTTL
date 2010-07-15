@@ -1,0 +1,86 @@
+;;; migration script executor
+show 0
+getdate datestr
+strcopy datestr 1 4 buf
+strconcat ymdhms buf
+strcopy datestr 6 2 buf
+strconcat ymdhms buf
+strcopy datestr 9 2 buf
+strconcat ymdhms buf
+
+;;; select script file
+filenamebox 'migration script' 0
+if result=0 goto abend
+cmdpath=inputstr
+
+;;;
+;;; statusbox
+;;;
+setdlgpos 800 50
+statusbox '移行を開始します' 'README'
+fileopen fh cmdpath 0
+;;; exec 'Z:\usr\bin\mplayer migrate_start.wav'
+pause 3
+closesbox
+
+;; fetch command
+:loop
+filereadln fh cmd
+if result goto success
+;; skip empty line
+strcompare cmd ''
+if result=0 goto loop
+strcopy cmd 0 1 cmd_1stchar
+
+;; read comment
+strcompare cmd_1stchar '#'
+if result=0 then
+strlen cmd
+strcopy cmd 2 result-1 ikou_comment
+strconcat ikou_comment #13
+strconcat disp_ikou_comment ikou_comment
+goto loop
+endif
+;;; password line
+strcopy cmd 0 5 cmd_passwd
+strcompare cmd_passwd '*****'
+if result=0 then
+  passwordbox 'Password:' 'input password'
+  cmd = inputstr
+endif
+
+;;; command
+strconcat disp_ikou_comment #13"=COMMAND="#13
+strconcat disp_ikou_comment cmd
+messagebox disp_ikou_comment 'Next command'
+disp_ikou_comment = ''
+send cmd
+
+;;; exec 'Z:\usr\bin\mplayer verify.wav'
+yesnobox '実行しちゃいますよ' '指さし確認'
+if result then
+  sendln ''
+else
+  goto abend
+endif
+goto loop
+;;;
+;;; abend
+;;;
+:abend
+fileclose fh
+messagebox '中止しました' 'Warning'
+closesbox
+end
+;;;
+;;; success
+;;;
+:success
+fileclose fh
+;; 時間情報取得
+sendln 'date "+%Y/%m/%d %H:%M:%S"'
+messagebox '移行作業完了しました' 'README'
+;;; exec 'Z:\usr\bin\mplayer migrate_end.wav'
+pause 3
+closesbox
+end
