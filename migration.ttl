@@ -1,6 +1,9 @@
 ;;; migration script executor
 show 0
 
+getdir macrodir
+makepath saycmd macrodir 'bin\say'
+
 ;;; select script file
 filenamebox 'migration script' 0
 if result=0 goto abend
@@ -10,9 +13,10 @@ cmdpath=inputstr
 ;;; statusbox
 ;;;
 setdlgpos 800 50
-statusbox '移行を開始します' 'README'
+statusbox '作業を開始します' 'README'
+SAY_message = '作業を開始します'
+call say
 fileopen fh cmdpath 0
-;exec 'Z:\usr\bin\mplayer migrate_start.wav'
 pause 3
 closesbox
 
@@ -50,13 +54,17 @@ if result=0 then
 endif
 
 ;;; command
+SAY_message = disp_ikou_comment
+call say
 strconcat disp_ikou_comment #13"=COMMAND="#13
 strconcat disp_ikou_comment cmd
+
 messagebox disp_ikou_comment 'Next command'
 disp_ikou_comment = ''
 send cmd
 
-;exec 'Z:\usr\bin\mplayer verify.wav'
+SAY_message = "実行しちゃいますよ"
+call say
 yesnobox '実行しちゃいますよ' '指さし確認'
 if result then
   sendln ''
@@ -84,8 +92,15 @@ fileclose fh
 sendln 'date "+%Y/%m/%d %H:%M:%S"'
 logwrite 'Abort Migration'
 logclose
-messagebox '移行作業完了しました' 'README'
-;exec 'Z:\usr\bin\mplayer migrate_end.wav'
+messagebox '作業完了しました' 'README'
 pause 3
 closesbox
 end
+
+
+:say
+sprintf 'cmd /c %s "%s"' saycmd SAY_message
+;; 音声機能を使わない場合は、以下のexec行をコメントアウトしてください。
+exec inputstr 'hide'
+return
+

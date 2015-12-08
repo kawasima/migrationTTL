@@ -4,7 +4,7 @@ ls
 # ホームに移動
 # 複数行のコメントはまとめて表示されます
 cd
-cd work/devlove
+cd workspace/devlove
 
 # SQL*Plusもシームレスにいけます
 sqlplus system
